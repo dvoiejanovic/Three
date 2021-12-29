@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "three": "^0.136.0"
+    "three": "^0.136.0",
+    "three-orbit-controls": "^82.1.0"
   },
   "name": "three",
   "version": "1.0.0",

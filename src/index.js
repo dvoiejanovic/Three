@@ -9,6 +9,7 @@ import {
   MeshPhongMaterial,
   FlatShading,
 } from "three";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls"
 import * as dat from "dat.gui";
 
 import "./style.css";
@@ -39,6 +40,9 @@ function init() {
   const light = new DirectionalLight(0xffffff, 1);
   light.position.set(0, 0, 1);
   scene.add(light);
+  const backLight = new DirectionalLight(0xffffff, 1);
+  backLight.position.set(0, 0, -1);
+  scene.add(backLight);
 
   const gui = new dat.GUI();
   const world = {
@@ -71,7 +75,7 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setAnimationLoop(animation);
   document.body.appendChild(renderer.domElement);
-
+	new OrbitControls(camera, renderer.domElement);
   function animation(time) {
     renderer.render(scene, camera);
   }
