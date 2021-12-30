@@ -12,7 +12,6 @@ import {
   BufferAttribute,
 } from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import * as dat from "dat.gui";
 import gsap from "gsap";
 
 import "./style.css";
@@ -27,7 +26,6 @@ function init() {
     1000
   );
 
-
   camera.position.x = 0;
   camera.position.y = -60;
   camera.position.z = 35;
@@ -35,20 +33,19 @@ function init() {
   const scene = new Scene();
   const raycaster = new Raycaster();
   const planeMaterial = new MeshPhongMaterial({
-		side: DoubleSide,
+    side: DoubleSide,
     flatShading: FlatShading,
     vertexColors: true,
   });
-	
+
   const light = new DirectionalLight(0xffffff, 1);
   const backLight = new DirectionalLight(0xffffff, 1);
   light.position.set(0, -1, 1);
   backLight.position.set(0, 0, -1);
-	
-  const gui = new dat.GUI();
+
   const world = {
-		plane: {
-			width: 400,
+    plane: {
+      width: 400,
       height: 400,
       widthSegments: 50,
       heightSegments: 50,
@@ -57,15 +54,20 @@ function init() {
       b: 0.4,
     },
   };
-	const planeGeometry = new PlaneGeometry(world.plane.width, world.plane.height, world.plane.widthSegments, world.plane.heightSegments);
-	const planeMesh = new Mesh(planeGeometry, planeMaterial);
-	
-	scene.add(planeMesh);
-	scene.add(light);
-	scene.add(backLight);
-	
+  const planeGeometry = new PlaneGeometry(
+    world.plane.width,
+    world.plane.height,
+    world.plane.widthSegments,
+    world.plane.heightSegments
+  );
+  const planeMesh = new Mesh(planeGeometry, planeMaterial);
+
+  scene.add(planeMesh);
+  scene.add(light);
+  scene.add(backLight);
+
   const changeColor = () => {
-		const colors = [];
+    const colors = [];
     const numberOfVertices = planeMesh.geometry.attributes.position.count;
     const { r, g, b } = world.plane;
     for (let i = 0; i < numberOfVertices; i++) {
@@ -77,46 +79,38 @@ function init() {
     );
   };
 
-	
   const generatePlane = () => {
-		planeMesh.geometry.dispose();
+    planeMesh.geometry.dispose();
     const { width, height, widthSegments, heightSegments } = world.plane;
     planeMesh.geometry = new PlaneGeometry(
-			width,
+      width,
       height,
       widthSegments,
       heightSegments
-			);
-			
-			const vertices = planeMesh.geometry.attributes.position.array;
-			const randomValues = [];
-			for (let i = 0; i <= vertices.length; i++) {
-				if (i % 3 === 0) {
-					const x = vertices[i];
-					const y = vertices[i + 1];
-					const z = vertices[i + 2];
-	
-					vertices[i] = x + (Math.random() - 0.5) * 3;
-					vertices[i + 1] = y + (Math.random() - 0.5) * 3;
-					vertices[i + 2] = z + (Math.random() + 0.5) * 3;
-				}
+    );
 
-				randomValues.push(Math.random() * Math.PI * 2);
-			}
-			
-			planeMesh.geometry.attributes.position.originalPosition = vertices;
-			planeMesh.geometry.attributes.position.randomValues = randomValues;
-			changeColor();
-		};
-		
-	generatePlane();
-  gui.add(world.plane, "height", 1, 500).onChange(generatePlane);
-  gui.add(world.plane, "width", 1, 500).onChange(generatePlane);
-  gui.add(world.plane, "widthSegments", 1, 50).onChange(generatePlane);
-  gui.add(world.plane, "heightSegments", 1, 50).onChange(generatePlane);
-  gui.add(world.plane, "r", 0, 1).onChange(changeColor);
-  gui.add(world.plane, "g", 0, 1).onChange(changeColor);
-  gui.add(world.plane, "b", 0, 1).onChange(changeColor);
+    const vertices = planeMesh.geometry.attributes.position.array;
+    const randomValues = [];
+    for (let i = 0; i <= vertices.length; i++) {
+      if (i % 3 === 0) {
+        const x = vertices[i];
+        const y = vertices[i + 1];
+        const z = vertices[i + 2];
+
+        vertices[i] = x + (Math.random() - 0.5) * 3;
+        vertices[i + 1] = y + (Math.random() - 0.5) * 3;
+        vertices[i + 2] = z + (Math.random() + 0.5) * 3;
+      }
+
+      randomValues.push(Math.random() * Math.PI * 2);
+    }
+
+    planeMesh.geometry.attributes.position.originalPosition = vertices;
+    planeMesh.geometry.attributes.position.randomValues = randomValues;
+    changeColor();
+  };
+
+  generatePlane();
 
   const renderer = new WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -130,20 +124,22 @@ function init() {
     y: undefined,
   };
 
-	let frame = 0;
+  let frame = 0;
+
   function animation(time) {
     renderer.render(scene, camera);
-
     raycaster.setFromCamera(mouse, camera);
-		console.log(camera.position);
-		frame += 0.01;
-		const {array, originalPosition, randomValues}  = planeMesh.geometry.attributes.position;
-		for (let i = 0; i < array.length; i+=3) {
-			array[i] = originalPosition[i] + Math.cos(frame + randomValues[i]) * 0.01;
-			array[i+1] = originalPosition[i+1] + Math.sin(frame + randomValues[i+1]) * 0.01;
-			array[i+2] = originalPosition[i+2] + Math.cos(frame + randomValues[i+2]) * 0.01;
-		}
-		planeMesh.geometry.attributes.position.needsUpdate =  true;
+
+    frame += 0.01;
+    const { array, originalPosition, randomValues } = planeMesh.geometry.attributes.position;
+    for (let i = 0; i < array.length; i += 3) {
+      array[i] = originalPosition[i] + Math.cos(frame + randomValues[i]) * 0.01;
+      array[i + 1] =
+        originalPosition[i + 1] + Math.sin(frame + randomValues[i + 1]) * 0.01;
+      array[i + 2] =
+        originalPosition[i + 2] + Math.cos(frame + randomValues[i + 2]) * 0.01;
+    }
+    planeMesh.geometry.attributes.position.needsUpdate = true;
 
     const intersects = raycaster.intersectObject(planeMesh);
     if (intersects.length > 0) {
